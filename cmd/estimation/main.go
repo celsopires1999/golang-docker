@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/celsopires1999/estimation/configs"
 	"github.com/celsopires1999/estimation/internal/infra/db"
 	httpHandler "github.com/celsopires1999/estimation/internal/infra/http"
 	"github.com/celsopires1999/estimation/internal/infra/repository"
@@ -20,8 +22,8 @@ func main() {
 
 	ctx := context.Background()
 
-	// urlExample := "postgres://username:password@localhost:5432/database_name"
-	conn, err := pgx.Connect(ctx, "postgres://postgres:postgres@db:5432/postgres?sslmode=disable")
+	configs := configs.LoadConfig(".")
+	conn, err := pgx.Connect(ctx, configs.DBConn)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
@@ -41,10 +43,10 @@ func main() {
 	costsHandler := httpHandler.NewCostsHandler(costUsecase)
 
 	r := http.NewServeMux()
-	r.HandleFunc("POST /costs", costsHandler.CreateCost)
+	r.HandleFunc("POST /api/v1/costs", costsHandler.CreateCost)
 
 	server := &http.Server{
-		Addr:    ":9000",
+		Addr:    fmt.Sprintf(":%s", configs.Port),
 		Handler: r,
 	}
 
@@ -68,7 +70,7 @@ func main() {
 	}()
 
 	// Starting the HTTP server
-	log.Println("HTTP server running on port 9000")
+	log.Println("HTTP server running on port", configs.Port)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("Error starting HTTP server: %v\n", err)
 	}

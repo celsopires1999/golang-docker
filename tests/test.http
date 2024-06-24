@@ -2,11 +2,11 @@
 # fa7fbab9-b195-407a-af32-6ecf6ddf9885
 
 ###
-GET http://localhost:9000/costs
+GET http://localhost:9000/api/v1/costs
 
 ###
 # @name createCost
-POST http://localhost:9000/costs
+POST http://localhost:9000/api/v1/costs
 Content-Type: application/json
 
 {
