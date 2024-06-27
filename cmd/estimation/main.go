@@ -11,15 +11,15 @@ import (
 	"time"
 
 	"github.com/celsopires1999/estimation/configs"
-	"github.com/celsopires1999/estimation/internal/infra/db"
-	httpHandler "github.com/celsopires1999/estimation/internal/infra/http"
-	"github.com/celsopires1999/estimation/internal/infra/repository"
-	"github.com/celsopires1999/estimation/internal/usecase"
 	"github.com/jackc/pgx/v5"
+
+	// "github.com/celsopires1999/estimation/internal/infra/db"
+	httpHandler "github.com/celsopires1999/estimation/internal/infra/http"
+	// "github.com/celsopires1999/estimation/internal/infra/repository"
+	// "github.com/celsopires1999/estimation/internal/usecase"
 )
 
 func main() {
-
 	ctx := context.Background()
 
 	configs := configs.LoadConfig(".")
@@ -33,21 +33,36 @@ func main() {
 		log.Fatalf("Unable to ping database: %v\n", err)
 	}
 
-	txm := db.NewTransactionManager(ctx, conn)
-	txm.Register("CostRepo", func(q *db.Queries) any {
-		return repository.NewCostRepositoryPostgres(q)
-	})
+	// // Transaction Manager
+	// txm := db.NewTransactionManager(ctx, conn)
+	// txm.Register("CostRepo", func(q *db.Queries) any {
+	// 	return repository.NewCostRepositoryPostgres(q)
+	// })
 
-	costUsecase := usecase.NewCreateCostUseCase(txm)
+	// // Repositories
+	// userRepo := repository.NewUserRepositoryPostgres(db.New(conn))
 
-	costsHandler := httpHandler.NewCostsHandler(costUsecase)
+	// // UseCases
+	// costUsecase := usecase.NewCreateCostUseCase(txm)
+	// userUsecase := usecase.NewCreateUserUseCase(userRepo)
 
-	r := http.NewServeMux()
-	r.HandleFunc("POST /api/v1/costs", costsHandler.CreateCost)
+	// // Handlers
+	// costsHandler := httpHandler.NewCostsHandler(costUsecase)
+	// userHandler := httpHandler.NewUsersHandler(userUsecase)
+
+	// // Routes
+	// r := http.NewServeMux()
+	// r.HandleFunc("POST /costs", costsHandler.CreateCost)
+	// r.HandleFunc("POST /users", userHandler.CreateUser)
+
+	// v1 := http.NewServeMux()
+	// v1.Handle("/api/v1/", http.StripPrefix("/api/v1", r))
+
+	v1 := httpHandler.Handler(ctx, conn)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", configs.Port),
-		Handler: r,
+		Handler: v1,
 	}
 
 	// Channel to listen for operating system signals
@@ -69,7 +84,6 @@ func main() {
 		close(idleConnsClosed)
 	}()
 
-	// Starting the HTTP server
 	log.Println("HTTP server running on port", configs.Port)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("Error starting HTTP server: %v\n", err)

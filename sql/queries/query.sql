@@ -85,3 +85,35 @@ SELECT
 FROM installments
 WHERE
     cost_id = $1;
+
+-- name: CreateUser :exec
+INSERT INTO
+    users (
+        user_id,
+        email,
+        user_name,
+        name,
+        user_type,
+        created_at
+    )
+VALUES ($1, $2, $3, $4, $5, $6);
+
+-- name: GetUser :one
+SELECT * FROM users WHERE user_id = $1;
+
+-- name: GetUsers :many
+SELECT * FROM users;
+
+-- name: UpdateUser :exec
+UPDATE users
+SET
+    email = $2,
+    user_name = $3,
+    name = $4,
+    user_type = $5,
+    updated_at = $6
+WHERE
+    user_id = $1;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE user_id = $1;

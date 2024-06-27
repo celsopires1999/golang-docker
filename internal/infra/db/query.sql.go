@@ -156,6 +156,49 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) er
 	return err
 }
 
+const createUser = `-- name: CreateUser :exec
+INSERT INTO
+    users (
+        user_id,
+        email,
+        user_name,
+        name,
+        user_type,
+        created_at
+    )
+VALUES ($1, $2, $3, $4, $5, $6)
+`
+
+type CreateUserParams struct {
+	UserID    string
+	Email     string
+	UserName  string
+	Name      string
+	UserType  string
+	CreatedAt pgtype.Timestamp
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
+	_, err := q.db.Exec(ctx, createUser,
+		arg.UserID,
+		arg.Email,
+		arg.UserName,
+		arg.Name,
+		arg.UserType,
+		arg.CreatedAt,
+	)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, userID string) error {
+	_, err := q.db.Exec(ctx, deleteUser, userID)
+	return err
+}
+
 const getCost = `-- name: GetCost :one
 SELECT cost_id, project_id, cost_type, description, comment, amount, currency, created_at, updated_at FROM costs WHERE cost_id = $1
 `
@@ -223,6 +266,57 @@ func (q *Queries) GetInstallments(ctx context.Context, costID string) ([]GetInst
 	return items, nil
 }
 
+const getUser = `-- name: GetUser :one
+SELECT user_id, email, user_name, name, user_type, created_at, updated_at FROM users WHERE user_id = $1
+`
+
+func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, userID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.Email,
+		&i.UserName,
+		&i.Name,
+		&i.UserType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT user_id, email, user_name, name, user_type, created_at, updated_at FROM users
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Email,
+			&i.UserName,
+			&i.Name,
+			&i.UserType,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCost = `-- name: UpdateCost :exec
 UPDATE costs
 SET
@@ -257,6 +351,39 @@ func (q *Queries) UpdateCost(ctx context.Context, arg UpdateCostParams) error {
 		arg.Comment,
 		arg.Amount,
 		arg.Currency,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET
+    email = $2,
+    user_name = $3,
+    name = $4,
+    user_type = $5,
+    updated_at = $6
+WHERE
+    user_id = $1
+`
+
+type UpdateUserParams struct {
+	UserID    string
+	Email     string
+	UserName  string
+	Name      string
+	UserType  string
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.UserID,
+		arg.Email,
+		arg.UserName,
+		arg.Name,
+		arg.UserType,
 		arg.UpdatedAt,
 	)
 	return err

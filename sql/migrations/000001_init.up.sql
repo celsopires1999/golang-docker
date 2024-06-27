@@ -1,9 +1,22 @@
 START TRANSACTION;
 
+CREATE TABLE IF NOT EXISTS users (
+    user_id VARCHAR(36) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    user_name VARCHAR(8) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    user_type VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS projects (
     project_id VARCHAR(36) PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
     start_date DATE NOT NULL,
+    manager_id VARCHAR(36) NOT NULL REFERENCES users (user_id),
+    estimator_id VARCHAR(36) NOT NULL REFERENCES users (user_id),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP
 );

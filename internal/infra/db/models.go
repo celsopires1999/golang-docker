@@ -31,8 +31,21 @@ type Installment struct {
 
 type Project struct {
 	ProjectID   string
+	Title       string
 	Description string
 	StartDate   pgtype.Date
+	ManagerID   string
+	EstimatorID string
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
+}
+
+type User struct {
+	UserID    string
+	Email     string
+	UserName  string
+	Name      string
+	UserType  string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
