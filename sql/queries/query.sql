@@ -2,11 +2,32 @@
 INSERT INTO
     projects (
         project_id,
+        title,
         description,
         start_date,
+        manager_id,
+        estimator_id,
         created_at
     )
-VALUES ($1, $2, $3, $4);
+VALUES ($1, $2, $3, $4, $5, $6, $7);
+
+-- name: GetProject :one
+SELECT * FROM projects WHERE project_id = $1;
+
+-- name: UpdateProject :exec
+UPDATE projects
+SET
+    title = $2,
+    description = $3,
+    start_date = $4,
+    manager_id = $5,
+    estimator_id = $6,
+    updated_at = $7
+WHERE
+    project_id = $1;
+
+-- name: DeleteProject :exec
+DELETE FROM projects WHERE project_id = $1;
 
 -- name: CreateCost :exec
 INSERT INTO
@@ -100,6 +121,9 @@ VALUES ($1, $2, $3, $4, $5, $6);
 
 -- name: GetUser :one
 SELECT * FROM users WHERE user_id = $1;
+
+-- name: GetUserByEmail :one
+SELECT * FROM users WHERE email = $1;
 
 -- name: GetUsers :many
 SELECT * FROM users;

@@ -20,24 +20,28 @@ func Handler(ctx context.Context, conn *pgx.Conn) *http.ServeMux {
 	})
 
 	// Repositories
+	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
 
 	// UseCases
 	costUsecase := usecase.NewCreateCostUseCase(txm)
+	createProjectUseCase := usecase.NewCreateProjectUseCase(projectRepo)
 
 	// Services
 	personService := service.NewUserService(conn)
 
 	// Handlers
 	costsHandler := NewCostsHandler(costUsecase)
-	personsHandler := NewPersonsHandler(personService)
+	usersHandler := NewPersonsHandler(personService)
+	projectHandler := NewProjectsHandler(createProjectUseCase)
 
 	// Routes
 	r := http.NewServeMux()
+	r.HandleFunc("POST /users", usersHandler.CreatePerson)
+	r.HandleFunc("PATCH /users/{personID}", usersHandler.UpdatePerson)
+	r.HandleFunc("GET /users/{personID}", usersHandler.GetPerson)
+	r.HandleFunc("DELETE /users/{personID}", usersHandler.DeletePerson)
+	r.HandleFunc("POST /projects", projectHandler.CreateProject)
 	r.HandleFunc("POST /costs", costsHandler.CreateCost)
-	r.HandleFunc("POST /persons", personsHandler.CreatePerson)
-	r.HandleFunc("PATCH /persons/{personID}", personsHandler.UpdatePerson)
-	r.HandleFunc("GET /persons/{personID}", personsHandler.GetPerson)
-	r.HandleFunc("DELETE /persons/{personID}", personsHandler.DeletePerson)
 
 	v1 := http.NewServeMux()
 	v1.Handle("/api/v1/", http.StripPrefix("/api/v1", r))

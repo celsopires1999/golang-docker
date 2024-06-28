@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS projects (
     project_id VARCHAR(36) PRIMARY KEY,
     title VARCHAR(50) NOT NULL,
-    description VARCHAR(255) NOT NULL,
+    description TEXT NULL,
     start_date DATE NOT NULL,
     manager_id VARCHAR(36) NOT NULL REFERENCES users (user_id),
     estimator_id VARCHAR(36) NOT NULL REFERENCES users (user_id),

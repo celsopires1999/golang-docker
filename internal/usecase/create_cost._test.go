@@ -47,8 +47,12 @@ func (s *CostUsecaseTestSuite) SetupSuite() {
 
 	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
 
-	date, _ := time.Parse("02-01-2006", "01-01-2020")
-	s.project = domain.NewProject(date)
+	title := "Project 1"
+	description := "Project 1 description"
+	startDate, _ := time.Parse("02-01-2006", "01-01-2020")
+	managerID := "1"
+	estimatorID := "1"
+	s.project = domain.NewProject(title, description, startDate, managerID, estimatorID)
 	err = projectRepo.CreateProject(context.Background(), s.project)
 	s.Nil(err)
 }

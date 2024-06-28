@@ -59,7 +59,12 @@ func (s *CostRepositoryTestSuite) SetupSuite() {
 	s.m = m
 
 	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
-	s.project = domain.NewProject(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC))
+	title := "Project 1"
+	description := "Project 1 description"
+	startDate := time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)
+	managerID := "1"
+	estimatorID := "1"
+	s.project = domain.NewProject(title, description, startDate, managerID, estimatorID)
 	err = projectRepo.CreateProject(context.Background(), s.project)
 	s.Nil(err)
 }

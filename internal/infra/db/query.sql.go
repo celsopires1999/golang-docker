@@ -132,25 +132,34 @@ const createProject = `-- name: CreateProject :exec
 INSERT INTO
     projects (
         project_id,
+        title,
         description,
         start_date,
+        manager_id,
+        estimator_id,
         created_at
     )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type CreateProjectParams struct {
 	ProjectID   string
-	Description string
+	Title       string
+	Description pgtype.Text
 	StartDate   pgtype.Date
+	ManagerID   string
+	EstimatorID string
 	CreatedAt   pgtype.Timestamp
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) error {
 	_, err := q.db.Exec(ctx, createProject,
 		arg.ProjectID,
+		arg.Title,
 		arg.Description,
 		arg.StartDate,
+		arg.ManagerID,
+		arg.EstimatorID,
 		arg.CreatedAt,
 	)
 	return err
@@ -187,6 +196,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 		arg.UserType,
 		arg.CreatedAt,
 	)
+	return err
+}
+
+const deleteProject = `-- name: DeleteProject :exec
+DELETE FROM projects WHERE project_id = $1
+`
+
+func (q *Queries) DeleteProject(ctx context.Context, projectID string) error {
+	_, err := q.db.Exec(ctx, deleteProject, projectID)
 	return err
 }
 
@@ -266,12 +284,51 @@ func (q *Queries) GetInstallments(ctx context.Context, costID string) ([]GetInst
 	return items, nil
 }
 
+const getProject = `-- name: GetProject :one
+SELECT project_id, title, description, start_date, manager_id, estimator_id, created_at, updated_at FROM projects WHERE project_id = $1
+`
+
+func (q *Queries) GetProject(ctx context.Context, projectID string) (Project, error) {
+	row := q.db.QueryRow(ctx, getProject, projectID)
+	var i Project
+	err := row.Scan(
+		&i.ProjectID,
+		&i.Title,
+		&i.Description,
+		&i.StartDate,
+		&i.ManagerID,
+		&i.EstimatorID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT user_id, email, user_name, name, user_type, created_at, updated_at FROM users WHERE user_id = $1
 `
 
 func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, userID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.Email,
+		&i.UserName,
+		&i.Name,
+		&i.UserType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT user_id, email, user_name, name, user_type, created_at, updated_at FROM users WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.UserID,
@@ -351,6 +408,42 @@ func (q *Queries) UpdateCost(ctx context.Context, arg UpdateCostParams) error {
 		arg.Comment,
 		arg.Amount,
 		arg.Currency,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const updateProject = `-- name: UpdateProject :exec
+UPDATE projects
+SET
+    title = $2,
+    description = $3,
+    start_date = $4,
+    manager_id = $5,
+    estimator_id = $6,
+    updated_at = $7
+WHERE
+    project_id = $1
+`
+
+type UpdateProjectParams struct {
+	ProjectID   string
+	Title       string
+	Description pgtype.Text
+	StartDate   pgtype.Date
+	ManagerID   string
+	EstimatorID string
+	UpdatedAt   pgtype.Timestamp
+}
+
+func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) error {
+	_, err := q.db.Exec(ctx, updateProject,
+		arg.ProjectID,
+		arg.Title,
+		arg.Description,
+		arg.StartDate,
+		arg.ManagerID,
+		arg.EstimatorID,
 		arg.UpdatedAt,
 	)
 	return err

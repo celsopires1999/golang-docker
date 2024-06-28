@@ -73,7 +73,7 @@ func (r *CostRepositoryPostgres) GetCost(ctx context.Context, costID string) (*d
 		}
 	}
 
-	input := domain.RestoreCostProps{
+	props := domain.RestoreCostProps{
 		CostID:       costModel.CostID,
 		ProjectID:    costModel.ProjectID,
 		CostType:     domain.CostType(costModel.CostType),
@@ -86,13 +86,13 @@ func (r *CostRepositoryPostgres) GetCost(ctx context.Context, costID string) (*d
 		UpdatedAt:    costModel.UpdatedAt.Time,
 	}
 
-	cost := domain.RestoreCost(input)
+	cost := domain.RestoreCost(props)
 	err = cost.Validate()
 	if err != nil {
 		return nil, err
 	}
 
-	return domain.RestoreCost(input), nil
+	return domain.RestoreCost(props), nil
 }
 
 func (r *CostRepositoryPostgres) UpdateCost(ctx context.Context, cost *domain.Cost) error {

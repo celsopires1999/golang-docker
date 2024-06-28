@@ -69,18 +69,18 @@ func createInstallment(params []NewInstallmentProps) []Installment {
 	return installments
 }
 
-func RestoreCost(input RestoreCostProps) *Cost {
+func RestoreCost(props RestoreCostProps) *Cost {
 	return &Cost{
-		CostID:       input.CostID,
-		ProjectID:    input.ProjectID,
-		CostType:     input.CostType,
-		Description:  input.Description,
-		Comment:      input.Comment,
-		Amount:       input.Amount,
-		Currency:     input.Currency,
-		Installments: input.Installments,
-		CreatedAt:    input.CreatedAt,
-		UpdatedAt:    input.UpdatedAt,
+		CostID:       props.CostID,
+		ProjectID:    props.ProjectID,
+		CostType:     props.CostType,
+		Description:  props.Description,
+		Comment:      props.Comment,
+		Amount:       props.Amount,
+		Currency:     props.Currency,
+		Installments: props.Installments,
+		CreatedAt:    props.CreatedAt,
+		UpdatedAt:    props.UpdatedAt,
 	}
 }
 

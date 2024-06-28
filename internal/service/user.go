@@ -25,6 +25,10 @@ func NewUserService(conn *pgx.Conn) *UserService {
 }
 
 func (h *UserService) CreateUser(ctx context.Context, input CreateUserInputDTO) (CreateUserOutputDTO, error) {
+	_, err := h.queries.GetUserByEmail(ctx, input.Email)
+	if err == nil {
+		return CreateUserOutputDTO{}, fmt.Errorf("user with email %s already exists", input.Email)
+	}
 	params := db.CreateUserParams{
 		UserID:    uuid.New().String(),
 		Email:     input.Email,
@@ -34,7 +38,7 @@ func (h *UserService) CreateUser(ctx context.Context, input CreateUserInputDTO) 
 		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := h.queries.CreateUser(ctx, params)
+	err = h.queries.CreateUser(ctx, params)
 	if err != nil {
 		return CreateUserOutputDTO{}, err
 	}

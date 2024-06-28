@@ -32,7 +32,7 @@ type Installment struct {
 type Project struct {
 	ProjectID   string
 	Title       string
-	Description string
+	Description pgtype.Text
 	StartDate   pgtype.Date
 	ManagerID   string
 	EstimatorID string
