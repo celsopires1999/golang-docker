@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
-	domain "github.com/celsopires1999/estimation/internal/domain"
+	"github.com/celsopires1999/estimation/internal/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCost(t *testing.T) {
+func TestUnitCost(t *testing.T) {
 	t.Run("should create cost with valid values", func(t *testing.T) {
 		props := domain.NewCostProps{
 			ProjectID:   "2eb1f2e6-bceb-45b2-a938-3d76b18b020f",

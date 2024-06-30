@@ -6,8 +6,11 @@ migrateup:
 migratedown:
 	migrate -path=sql/migrations -database "$(DB_URL)" -verbose drop
 
-test:
-	go test -cover -p 1 -count 1 ./...
+test-unit:
+	go test -v -cover -count 1 -run ^TestUnit ./...
+
+test-integration:
+	go test -v -cover -p 1 -count 1 -run ^TestIntegration ./...
 
 test-clean:
 	go clean --testcache

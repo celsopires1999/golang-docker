@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/celsopires1999/estimation/internal/domain"
-	"github.com/celsopires1999/estimation/internal/faker"
+	"github.com/celsopires1999/estimation/internal/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProject(t *testing.T) {
+func TestUnitProject(t *testing.T) {
 	t.Run("should create a project with valid values", func(t *testing.T) {
-		faker := faker.NewProjectFakeBuilder()
+		faker := testutils.NewProjectFakeBuilder()
 
 		project := domain.NewProject(
 			faker.Title,
@@ -30,7 +30,7 @@ func TestProject(t *testing.T) {
 	})
 
 	t.Run("should fail to create a project with invalid values", func(t *testing.T) {
-		faker := faker.NewProjectFakeBuilder()
+		faker := testutils.NewProjectFakeBuilder()
 
 		project := domain.NewProject(
 			"",
@@ -46,7 +46,7 @@ func TestProject(t *testing.T) {
 	})
 
 	t.Run("should add months to planned start", func(t *testing.T) {
-		project := faker.NewProjectFakeBuilder().
+		project := testutils.NewProjectFakeBuilder().
 			WithStarDate(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)).
 			Build()
 

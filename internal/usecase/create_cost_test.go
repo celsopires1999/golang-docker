@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/celsopires1999/estimation/internal/domain"
-	"github.com/celsopires1999/estimation/internal/faker"
 	"github.com/celsopires1999/estimation/internal/infra/db"
 	"github.com/celsopires1999/estimation/internal/infra/repository"
 	"github.com/celsopires1999/estimation/internal/service"
+	"github.com/celsopires1999/estimation/internal/testutils"
 	"github.com/celsopires1999/estimation/internal/usecase"
 
 	"github.com/jackc/pgx/v5"
@@ -49,15 +49,10 @@ func (s *CostUsecaseTestSuite) SetupSuite() {
 
 	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
 	userService := service.NewUserService(conn)
-	userParams := service.CreateUserInputDTO{
-		UserName: "user001",
-		Email:    "oXhJt@example.com",
-		Name:     "John Doe",
-		UserType: "manager",
-	}
+	userParams := testutils.NewUserFakeBuilder().WithManager().Build()
 	createdUser, err := userService.CreateUser(context.Background(), userParams)
 	s.Nil(err)
-	s.project = faker.NewProjectFakeBuilder().
+	s.project = testutils.NewProjectFakeBuilder().
 		WithManagerID(createdUser.UserID).
 		WithEstimatorID(createdUser.UserID).
 		Build()
@@ -72,11 +67,11 @@ func (s *CostUsecaseTestSuite) TearDownSuite() {
 	s.Nil(err)
 }
 
-func TestCostUseCaseTestSuite(t *testing.T) {
+func TestIntegrationCostUseCase(t *testing.T) {
 	suite.Run(t, new(CostUsecaseTestSuite))
 }
 
-func (s *CostUsecaseTestSuite) TestCreateCost() {
+func (s *CostUsecaseTestSuite) TestIntegrationCreateCost() {
 	s.Run("should create cost", func() {
 		type testCase struct {
 			label        string
