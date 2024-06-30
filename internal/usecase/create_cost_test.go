@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/celsopires1999/estimation/internal/domain"
+	"github.com/celsopires1999/estimation/internal/faker"
 	"github.com/celsopires1999/estimation/internal/infra/db"
 	"github.com/celsopires1999/estimation/internal/infra/repository"
+	"github.com/celsopires1999/estimation/internal/service"
 	"github.com/celsopires1999/estimation/internal/usecase"
 
 	"github.com/jackc/pgx/v5"
@@ -40,19 +41,27 @@ func (s *CostUsecaseTestSuite) SetupSuite() {
 	m, err := migrate.New(MIGRATION_PATH, dbURL)
 	s.Nil(err)
 	s.NotNil(m)
+
 	err = m.Up()
 	s.Nil(err)
 	s.conn = conn
 	s.m = m
 
 	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
+	userService := service.NewUserService(conn)
+	userParams := service.CreateUserInputDTO{
+		UserName: "user001",
+		Email:    "oXhJt@example.com",
+		Name:     "John Doe",
+		UserType: "manager",
+	}
+	createdUser, err := userService.CreateUser(context.Background(), userParams)
+	s.Nil(err)
+	s.project = faker.NewProjectFakeBuilder().
+		WithManagerID(createdUser.UserID).
+		WithEstimatorID(createdUser.UserID).
+		Build()
 
-	title := "Project 1"
-	description := "Project 1 description"
-	startDate, _ := time.Parse("02-01-2006", "01-01-2020")
-	managerID := "1"
-	estimatorID := "1"
-	s.project = domain.NewProject(title, description, startDate, managerID, estimatorID)
 	err = projectRepo.CreateProject(context.Background(), s.project)
 	s.Nil(err)
 }

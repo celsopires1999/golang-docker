@@ -7,7 +7,7 @@ migratedown:
 	migrate -path=sql/migrations -database "$(DB_URL)" -verbose drop
 
 test:
-	go test -cover ./...
+	go test -cover -p 1 -count 1 ./...
 
 test-clean:
 	go clean --testcache

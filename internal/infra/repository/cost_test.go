@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/celsopires1999/estimation/internal/domain"
+	"github.com/celsopires1999/estimation/internal/faker"
 	"github.com/celsopires1999/estimation/internal/infra/db"
 	"github.com/celsopires1999/estimation/internal/infra/repository"
+	"github.com/celsopires1999/estimation/internal/service"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/suite"
@@ -39,18 +41,6 @@ func (s *CostRepositoryTestSuite) SetupSuite() {
 	m, err := migrate.New(MIGRATION_PATH, dbURL)
 	s.Nil(err)
 	s.NotNil(m)
-	// sql := `
-	// 	DO $$ DECLARE
-	// 		r RECORD;
-	// 	BEGIN
-	// 		FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
-	// 			EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE;';
-	// 		END LOOP;
-	// 	END;
-	// 	$$;`
-
-	// _, err = conn.Exec(context.Background(), sql)
-	// s.Nil(err)
 
 	err = m.Up()
 	s.Nil(err)
@@ -59,12 +49,21 @@ func (s *CostRepositoryTestSuite) SetupSuite() {
 	s.m = m
 
 	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
-	title := "Project 1"
-	description := "Project 1 description"
-	startDate := time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)
-	managerID := "1"
-	estimatorID := "1"
-	s.project = domain.NewProject(title, description, startDate, managerID, estimatorID)
+	userService := service.NewUserService(conn)
+	userParams := service.CreateUserInputDTO{
+		UserName: "user001",
+		Email:    "oXhJt@example.com",
+		Name:     "John Doe",
+		UserType: "manager",
+	}
+	createdUser, err := userService.CreateUser(context.Background(), userParams)
+	s.Nil(err)
+
+	s.project = faker.NewProjectFakeBuilder().
+		WithManagerID(createdUser.UserID).
+		WithEstimatorID(createdUser.UserID).
+		Build()
+
 	err = projectRepo.CreateProject(context.Background(), s.project)
 	s.Nil(err)
 }

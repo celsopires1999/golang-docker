@@ -25,7 +25,12 @@ func (uc *CreateProjectUseCase) Execute(ctx context.Context, input CreateProject
 		return nil, fmt.Errorf("invalid start date format, expected 'DD-MM-YYYY': %w", err)
 	}
 
-	project := domain.NewProject(input.Title, input.Description, startDate, input.ManagerID, input.EstimatorID)
+	description := ""
+	if input.Description != nil {
+		description = *input.Description
+	}
+
+	project := domain.NewProject(input.Title, description, startDate, input.ManagerID, input.EstimatorID)
 	if err := uc.repo.CreateProject(ctx, project); err != nil {
 		return nil, err
 	}
@@ -47,11 +52,11 @@ func (uc *CreateProjectUseCase) Execute(ctx context.Context, input CreateProject
 }
 
 type CreateProjectInputDTO struct {
-	Title       string `json:"title" validate:"required"`
-	Description string `json:"description" validate:"required"`
-	StartDate   string `json:"start_date" validate:"required"`
-	ManagerID   string `json:"manager_id" validate:"required"`
-	EstimatorID string `json:"estimator_id" validate:"required"`
+	Title       string  `json:"title" validate:"required"`
+	Description *string `json:"description" validate:"-"`
+	StartDate   string  `json:"start_date" validate:"required"`
+	ManagerID   string  `json:"manager_id" validate:"required"`
+	EstimatorID string  `json:"estimator_id" validate:"required"`
 }
 
 type CreateProjectOutputDTO struct {

@@ -11,7 +11,7 @@ import (
 type Project struct {
 	ProjectID   string    `validate:"required"`
 	Title       string    `validate:"required"`
-	Description string    `validate:"required"`
+	Description string    `validate:"-"`
 	StarDate    time.Time `validate:"required"`
 	ManagerID   string    `validate:"required"`
 	EstimatorID string    `validate:"required"`

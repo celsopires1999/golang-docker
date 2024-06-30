@@ -92,7 +92,7 @@ func (r *CostRepositoryPostgres) GetCost(ctx context.Context, costID string) (*d
 		return nil, err
 	}
 
-	return domain.RestoreCost(props), nil
+	return cost, nil
 }
 
 func (r *CostRepositoryPostgres) UpdateCost(ctx context.Context, cost *domain.Cost) error {
