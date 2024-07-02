@@ -1,4 +1,4 @@
-DB_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+DB_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable&search_path=estimation
 
 migrateup:
 	migrate -path=sql/migrations -database "$(DB_URL)" -verbose up

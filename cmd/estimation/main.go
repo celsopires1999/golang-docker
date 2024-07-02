@@ -22,7 +22,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	configs := configs.LoadConfig(".")
+	configs := configs.LoadConfig(".", "")
 	conn, err := pgx.Connect(ctx, configs.DBConn)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)

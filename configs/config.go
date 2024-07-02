@@ -11,10 +11,10 @@ type conf struct {
 	Port   string `mapstructure:"PORT"`
 }
 
-func LoadConfig(path string) *conf {
+func LoadConfig(path string, env string) *conf {
 	var cfg *conf
 	viper.AddConfigPath(path)
-	viper.SetConfigName(".env")
+	viper.SetConfigName(".env" + env)
 	viper.SetConfigType("dotenv")
 
 	viper.AutomaticEnv()

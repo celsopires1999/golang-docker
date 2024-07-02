@@ -27,29 +27,27 @@ const (
 type CostRepositoryTestSuite struct {
 	suite.Suite
 	conn    *pgx.Conn
+	dbURL   string
 	m       *migrate.Migrate
 	project *domain.Project
 }
 
 func (s *CostRepositoryTestSuite) SetupSuite() {
-	dbURL := "postgres://postgres:postgres@db:5432/postgres?sslmode=disable"
-	conn, err := pgx.Connect(context.Background(), dbURL)
-	if err != nil {
-		panic(err)
-	}
 
-	m, err := migrate.New(MIGRATION_PATH, dbURL)
+	s.conn, s.dbURL = testutils.ConnectDB()
+
+	m, err := migrate.New(MIGRATION_PATH, s.dbURL)
 	s.Nil(err)
 	s.NotNil(m)
 
 	err = m.Up()
 	s.Nil(err)
 
-	s.conn = conn
+	// s.conn = conn
 	s.m = m
 
-	projectRepo := repository.NewProjectRepositoryPostgres(db.New(conn))
-	userService := service.NewUserService(conn)
+	projectRepo := repository.NewProjectRepositoryPostgres(db.New(s.conn))
+	userService := service.NewUserService(s.conn)
 	userParams := testutils.NewUserFakeBuilder().WithManager().Build()
 	createdUser, err := userService.CreateUser(context.Background(), userParams)
 	s.Nil(err)
