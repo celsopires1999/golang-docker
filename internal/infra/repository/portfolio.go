@@ -27,7 +27,7 @@ func (r *estimationRepositoryPostgres) CreatePortfolio(ctx context.Context, port
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return common.NewConflictError(fmt.Errorf("portfolio for baseline id %s and plan id %s already exists", portfolio.BaselineID, portfolio.PlanID))
+				return common.NewConflictError(fmt.Errorf("portfolio for baseline id %s and plan id %s with start date %s already exists", portfolio.BaselineID, portfolio.PlanID, portfolio.StartDate.Format("2006-01-02")))
 			}
 			return common.NewConflictError(err)
 		}
@@ -61,24 +61,6 @@ func (r *estimationRepositoryPostgres) GetPortfolio(ctx context.Context, portfol
 	}
 
 	return portfolio, nil
-}
-
-func (r *estimationRepositoryPostgres) ValidatePortfolioUniqueBaselineByPlan(ctx context.Context, planID string, baselineCode string) error {
-	_, err := r.queries.FindPortfolioByPlanIdAndBaselineCode(ctx,
-		db.FindPortfolioByPlanIdAndBaselineCodeParams{
-			PlanID: planID,
-			Code:   baselineCode,
-		},
-	)
-
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
-		return err
-	}
-
-	return common.NewConflictError(fmt.Errorf("portfolio for plan id %s and baseline code %s already exists", planID, baselineCode))
 }
 
 func (r *estimationRepositoryPostgres) UpdatePortfolio(ctx context.Context, portfolio *domain.Portfolio) error {

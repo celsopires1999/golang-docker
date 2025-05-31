@@ -11,8 +11,8 @@ USER dev
 
 WORKDIR /home/dev/app
 
-RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0
+RUN go install github.com/air-verse/air@v1.62.0
 
 EXPOSE 9000
 

@@ -58,11 +58,6 @@ func (uc *CreatePortfolioUseCase) Execute(ctx context.Context, input CreatePortf
 			return err
 		}
 
-		err = repository.ValidatePortfolioUniqueBaselineByPlan(ctx, input.PlanID, baseline.Code)
-		if err != nil {
-			return err
-		}
-
 		costs, err := repository.GetCostManyByBaselineID(ctx, input.BaselineID)
 		if err != nil {
 			return err

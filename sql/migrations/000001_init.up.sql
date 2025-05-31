@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS portfolios (
     start_date DATE NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    UNIQUE (baseline_id, plan_id)
+    UNIQUE (baseline_id, plan_id, start_date)
 );
 
 CREATE TABLE IF NOT EXISTS budgets (
