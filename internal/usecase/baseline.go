@@ -99,6 +99,9 @@ func (uc *UpdateBaselineUseCase) Execute(ctx context.Context, input UpdateBaseli
 		return nil, err
 	}
 
+	originalStartDate := baseline.StartDate
+	originalDuration := baseline.Duration
+
 	baseline.ChangeCode(input.Code)
 	baseline.ChangeReview(input.Review)
 	baseline.ChangeTitle(input.Title)
@@ -119,6 +122,24 @@ func (uc *UpdateBaselineUseCase) Execute(ctx context.Context, input UpdateBaseli
 	}
 	if count > 0 {
 		return nil, common.NewConflictError(fmt.Errorf("baseline %s has %d portfolio(s)", baseline.BaselineID, count))
+	}
+
+	if originalStartDate != baseline.StartDate || originalDuration != baseline.Duration {
+		costs, err := uc.repository.GetCostManyByBaselineID(ctx, baseline.BaselineID)
+		if err != nil {
+			return nil, err
+		}
+		if len(costs) > 0 {
+			return nil, common.NewConflictError(fmt.Errorf("neither start date nor duration can be changed because baseline %s has costs", baseline.BaselineID))
+		}
+
+		efforts, err := uc.repository.GetEffortManyByBaselineID(ctx, baseline.BaselineID)
+		if err != nil {
+			return nil, err
+		}
+		if len(efforts) > 0 {
+			return nil, common.NewConflictError(fmt.Errorf("neither start date nor duration can be changed because baseline %s has efforts", baseline.BaselineID))
+		}
 	}
 
 	err = uc.repository.UpdateBaseline(ctx, baseline)
